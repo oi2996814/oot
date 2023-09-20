@@ -5,16 +5,16 @@
 #include "global.h"
 
 typedef enum {
-    /* 0  */ ENHORSE_ACT_FROZEN,
-    /* 1  */ ENHORSE_ACT_INACTIVE,
-    /* 2  */ ENHORSE_ACT_IDLE,
-    /* 3  */ ENHORSE_ACT_FOLLOW_PLAYER,
-    /* 4  */ ENHORSE_ACT_INGO_RACE,
-    /* 5  */ ENHORSE_ACT_MOUNTED_IDLE,
-    /* 6  */ ENHORSE_ACT_MOUNTED_IDLE_WHINNEYING,
-    /* 7  */ ENHORSE_ACT_MOUNTED_TURN,
-    /* 8  */ ENHORSE_ACT_MOUNTED_WALK,
-    /* 9  */ ENHORSE_ACT_MOUNTED_TROT,
+    /*  0 */ ENHORSE_ACT_FROZEN,
+    /*  1 */ ENHORSE_ACT_INACTIVE,
+    /*  2 */ ENHORSE_ACT_IDLE,
+    /*  3 */ ENHORSE_ACT_FOLLOW_PLAYER,
+    /*  4 */ ENHORSE_ACT_INGO_RACE,
+    /*  5 */ ENHORSE_ACT_MOUNTED_IDLE,
+    /*  6 */ ENHORSE_ACT_MOUNTED_IDLE_WHINNEYING,
+    /*  7 */ ENHORSE_ACT_MOUNTED_TURN,
+    /*  8 */ ENHORSE_ACT_MOUNTED_WALK,
+    /*  9 */ ENHORSE_ACT_MOUNTED_TROT,
     /* 10 */ ENHORSE_ACT_MOUNTED_GALLOP,
     /* 11 */ ENHORSE_ACT_MOUNTED_REARING,
     /* 12 */ ENHORSE_ACT_STOPPING,
@@ -97,7 +97,7 @@ typedef struct EnHorse {
     /* 0x0150 */ s32 noInputTimer;
     /* 0x0154 */ s32 noInputTimerMax;
     /* 0x0158 */ s32 type;
-    /* 0x015C */ s8 bankIndex;
+    /* 0x015C */ s8 hniObjectSlot;
     /* 0x0160 */ Skin skin;
     /* 0x01F0 */ u32 stateFlags;
     /* 0x01F4 */ Vec3f lastPos;

@@ -15,12 +15,12 @@ typedef struct BgMoriHashigo {
     /* 0x01C4 */ BgMoriHashigoActionFunc actionFunc;
     /* 0x01C8 */ s16 hitTimer;
     /* 0x01CA */ s16 bounceCounter;
-    /* 0x01CC */ s8 moriTexObjIndex;
+    /* 0x01CC */ s8 moriTexObjectSlot;
 } BgMoriHashigo; // size = 0x01D0
 
 typedef enum {
     /* -1 */ HASHIGO_CLASP = -1,
-    /*  0  */ HASHIGO_LADDER
+    /*  0 */ HASHIGO_LADDER
 } HasigoType;
 
 #endif

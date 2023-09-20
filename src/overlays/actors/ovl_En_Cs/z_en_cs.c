@@ -245,7 +245,7 @@ void EnCs_HandleTalking(EnCs* this, PlayState* play) {
         }
 
         if (this->actor.textId == 0x2023) {
-            func_80078884(NA_SE_SY_TRE_BOX_APPEAR);
+            Sfx_PlaySfxCentered(NA_SE_SY_TRE_BOX_APPEAR);
         }
 
         this->talkState = 1;
@@ -312,8 +312,8 @@ s32 EnCs_HandleWalking(EnCs* this, PlayState* play) {
 
     Math_SmoothStepToS(&this->actor.shape.rot.y, this->walkAngle, 1, 2500, 0);
     this->actor.world.rot.y = this->actor.shape.rot.y;
-    this->actor.speedXZ = this->walkSpeed;
-    Actor_MoveForward(&this->actor);
+    this->actor.speed = this->walkSpeed;
+    Actor_MoveXZGravity(&this->actor);
     Actor_UpdateBgCheckInfo(play, &this->actor, 0.0f, 0.0f, 0.0f, UPDBGCHECKINFO_FLAG_2);
 
     return 0;
@@ -403,10 +403,10 @@ void EnCs_Talk(EnCs* this, PlayState* play) {
     }
 
     this->flag |= 1;
-    this->npcInfo.unk_18.x = player->actor.focus.pos.x;
-    this->npcInfo.unk_18.y = player->actor.focus.pos.y;
-    this->npcInfo.unk_18.z = player->actor.focus.pos.z;
-    func_80034A14(&this->actor, &this->npcInfo, 0, 4);
+    this->interactInfo.trackPos.x = player->actor.focus.pos.x;
+    this->interactInfo.trackPos.y = player->actor.focus.pos.y;
+    this->interactInfo.trackPos.z = player->actor.focus.pos.z;
+    Npc_TrackPoint(&this->actor, &this->interactInfo, 0, NPC_TRACKING_FULL_BODY);
 
     if (this->talkState == 0) {
         EnCs_ChangeAnim(this, ENCS_ANIM_0, &this->currentAnimIndex);
@@ -422,14 +422,14 @@ void EnCs_Update(Actor* thisx, PlayState* play) {
 
     if (this->currentAnimIndex == 0) {
         if (((s32)this->skelAnime.curFrame == 9) || ((s32)this->skelAnime.curFrame == 23)) {
-            Audio_PlayActorSfx2(&this->actor, NA_SE_EV_CHIBI_WALK);
+            Actor_PlaySfx(&this->actor, NA_SE_EV_CHIBI_WALK);
         }
     } else if (this->currentAnimIndex == 1) {
         if (((s32)this->skelAnime.curFrame == 10) || ((s32)this->skelAnime.curFrame == 25)) {
-            Audio_PlayActorSfx2(&this->actor, NA_SE_EV_CHIBI_WALK);
+            Actor_PlaySfx(&this->actor, NA_SE_EV_CHIBI_WALK);
         }
     } else if ((this->currentAnimIndex == 2) && ((s32)this->skelAnime.curFrame == 20)) {
-        Audio_PlayActorSfx2(&this->actor, NA_SE_EV_CHIBI_WALK);
+        Actor_PlaySfx(&this->actor, NA_SE_EV_CHIBI_WALK);
     }
 
     Collider_UpdateCylinder(&this->actor, &this->collider);
@@ -470,18 +470,18 @@ void EnCs_Draw(Actor* thisx, PlayState* play) {
                           EnCs_OverrideLimbDraw, EnCs_PostLimbDraw, &this->actor);
 
     if (GET_ITEMGETINF(ITEMGETINF_3A)) {
-        s32 childLinkObjectIndex = Object_GetIndex(&play->objectCtx, OBJECT_LINK_CHILD);
+        s32 linkChildObjectSlot = Object_GetSlot(&play->objectCtx, OBJECT_LINK_CHILD);
 
         // Handle attaching the Spooky Mask to the boy's face
-        if (childLinkObjectIndex >= 0) {
+        if (linkChildObjectSlot >= 0) {
             Mtx* mtx;
 
             Matrix_Put(&this->spookyMaskMtx);
             mtx = Matrix_NewMtx(play->state.gfxCtx, "../z_en_cs.c", 1000);
-            gSPSegment(POLY_OPA_DISP++, 0x06, play->objectCtx.status[childLinkObjectIndex].segment);
+            gSPSegment(POLY_OPA_DISP++, 0x06, play->objectCtx.slots[linkChildObjectSlot].segment);
             gSPSegment(POLY_OPA_DISP++, 0x0D, mtx - 7);
             gSPDisplayList(POLY_OPA_DISP++, gLinkChildSpookyMaskDL);
-            gSPSegment(POLY_OPA_DISP++, 0x06, play->objectCtx.status[this->actor.objBankIndex].segment);
+            gSPSegment(POLY_OPA_DISP++, 0x06, play->objectCtx.slots[this->actor.objectSlot].segment);
         }
     }
 
@@ -494,12 +494,12 @@ s32 EnCs_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* po
     if (this->flag & 1) {
         switch (limbIndex) {
             case 8:
-                rot->x += this->npcInfo.unk_0E.y;
-                rot->y -= this->npcInfo.unk_0E.x;
+                rot->x += this->interactInfo.torsoRot.y;
+                rot->y -= this->interactInfo.torsoRot.x;
                 break;
             case 15:
-                rot->x += this->npcInfo.unk_08.y;
-                rot->z += this->npcInfo.unk_08.x;
+                rot->x += this->interactInfo.headRot.y;
+                rot->z += this->interactInfo.headRot.x;
                 break;
         }
     }

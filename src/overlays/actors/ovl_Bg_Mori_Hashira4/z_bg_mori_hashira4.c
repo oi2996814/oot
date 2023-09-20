@@ -78,8 +78,8 @@ void BgMoriHashira4_Init(Actor* thisx, PlayState* play) {
         BgMoriHashira4_InitDynaPoly(this, play, &gMoriHashira2Col, 0);
     }
     Actor_ProcessInitChain(&this->dyna.actor, sInitChain);
-    this->moriTexObjIndex = Object_GetIndex(&play->objectCtx, OBJECT_MORI_TEX);
-    if (this->moriTexObjIndex < 0) {
+    this->moriTexObjectSlot = Object_GetSlot(&play->objectCtx, OBJECT_MORI_TEX);
+    if (this->moriTexObjectSlot < 0) {
         Actor_Kill(&this->dyna.actor);
         // "Bank danger!"
         osSyncPrintf("Error : バンク危険！(arg_data 0x%04x)(%s %d)\n", this->dyna.actor.params,
@@ -109,7 +109,7 @@ void BgMoriHashira4_SetupWaitForMoriTex(BgMoriHashira4* this) {
 }
 
 void BgMoriHashira4_WaitForMoriTex(BgMoriHashira4* this, PlayState* play) {
-    if (Object_IsLoaded(&play->objectCtx, this->moriTexObjIndex)) {
+    if (Object_IsLoaded(&play->objectCtx, this->moriTexObjectSlot)) {
         this->gateTimer = 0;
         if (this->dyna.actor.params == 0) {
             BgMoriHashira4_SetupPillarsRotate(this);
@@ -126,14 +126,14 @@ void BgMoriHashira4_SetupPillarsRotate(BgMoriHashira4* this) {
 
 void BgMoriHashira4_PillarsRotate(BgMoriHashira4* this, PlayState* play) {
     this->dyna.actor.shape.rot.y = this->dyna.actor.world.rot.y += 0x96;
-    Audio_PlayActorSfx2(&this->dyna.actor, NA_SE_EV_ROLL_STAND_2 - SFX_FLAG);
+    Actor_PlaySfx(&this->dyna.actor, NA_SE_EV_ROLL_STAND_2 - SFX_FLAG);
 }
 
 void BgMoriHashira4_GateWait(BgMoriHashira4* this, PlayState* play) {
     if (Flags_GetSwitch(play, this->switchFlag) || (this->gateTimer != 0)) {
         this->gateTimer++;
         if (this->gateTimer > 30) {
-            Audio_PlayActorSfx2(&this->dyna.actor, NA_SE_EV_METALDOOR_OPEN);
+            Actor_PlaySfx(&this->dyna.actor, NA_SE_EV_METALDOOR_OPEN);
             BgMoriHashira4_SetupAction(this, BgMoriHashira4_GateOpen);
             OnePointCutscene_Init(play, 6010, 20, &this->dyna.actor, CAM_ID_MAIN);
             sUnkTimer++;
@@ -163,7 +163,7 @@ void BgMoriHashira4_Draw(Actor* thisx, PlayState* play) {
     OPEN_DISPS(play->state.gfxCtx, "../z_bg_mori_hashira4.c", 339);
     Gfx_SetupDL_25Opa(play->state.gfxCtx);
 
-    gSPSegment(POLY_OPA_DISP++, 0x08, play->objectCtx.status[this->moriTexObjIndex].segment);
+    gSPSegment(POLY_OPA_DISP++, 0x08, play->objectCtx.slots[this->moriTexObjectSlot].segment);
 
     gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx, "../z_bg_mori_hashira4.c", 344),
               G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);

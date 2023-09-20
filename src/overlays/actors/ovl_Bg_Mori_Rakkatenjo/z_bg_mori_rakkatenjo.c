@@ -64,8 +64,8 @@ void BgMoriRakkatenjo_Init(Actor* thisx, PlayState* play) {
         // "The set Angle has changed. Let's fix the program."
         osSyncPrintf("Warning : セット Angle が変更されています。プログラムを修正しましょう。\n");
     }
-    this->moriTexObjIndex = Object_GetIndex(&play->objectCtx, OBJECT_MORI_TEX);
-    if (this->moriTexObjIndex < 0) {
+    this->moriTexObjectSlot = Object_GetSlot(&play->objectCtx, OBJECT_MORI_TEX);
+    if (this->moriTexObjectSlot < 0) {
         // "Forest Temple obj Falling Ceiling Bank Danger!"
         osSyncPrintf("Error : 森の神殿 obj 落下天井 バンク危険！(%s %d)\n", "../z_bg_mori_rakkatenjo.c", 205);
         Actor_Kill(&this->dyna.actor);
@@ -102,7 +102,7 @@ void BgMoriRakkatenjo_SetupWaitForMoriTex(BgMoriRakkatenjo* this) {
 }
 
 void BgMoriRakkatenjo_WaitForMoriTex(BgMoriRakkatenjo* this, PlayState* play) {
-    if (Object_IsLoaded(&play->objectCtx, this->moriTexObjIndex)) {
+    if (Object_IsLoaded(&play->objectCtx, this->moriTexObjectSlot)) {
         BgMoriRakkatenjo_SetupWait(this);
         this->dyna.actor.draw = BgMoriRakkatenjo_Draw;
     }
@@ -133,7 +133,7 @@ void BgMoriRakkatenjo_Wait(BgMoriRakkatenjo* this, PlayState* play) {
         }
     }
     if (this->timer < 20) {
-        func_800788CC(NA_SE_EV_BLOCKSINK - SFX_FLAG);
+        Sfx_PlaySfxCentered2(NA_SE_EV_BLOCKSINK - SFX_FLAG);
     }
 }
 
@@ -149,14 +149,14 @@ void BgMoriRakkatenjo_Fall(BgMoriRakkatenjo* this, PlayState* play) {
     Actor* thisx = &this->dyna.actor;
     s32 quakeIndex;
 
-    Actor_MoveForward(thisx);
+    Actor_MoveXZGravity(thisx);
     if ((thisx->velocity.y < 0.0f) && (thisx->world.pos.y <= 403.0f)) {
         if (this->bounceCount >= ARRAY_COUNT(bounceVel)) {
             BgMoriRakkatenjo_SetupRest(this);
         } else {
             if (this->bounceCount == 0) {
                 this->fallCount++;
-                func_800788CC(NA_SE_EV_STONE_BOUND);
+                Sfx_PlaySfxCentered2(NA_SE_EV_STONE_BOUND);
                 Rumble_Request(SQ(thisx->yDistToPlayer), 255, 20, 150);
             }
             thisx->world.pos.y =
@@ -226,7 +226,7 @@ void BgMoriRakkatenjo_Draw(Actor* thisx, PlayState* play) {
     OPEN_DISPS(play->state.gfxCtx, "../z_bg_mori_rakkatenjo.c", 497);
     Gfx_SetupDL_25Opa(play->state.gfxCtx);
 
-    gSPSegment(POLY_OPA_DISP++, 0x08, play->objectCtx.status[this->moriTexObjIndex].segment);
+    gSPSegment(POLY_OPA_DISP++, 0x08, play->objectCtx.slots[this->moriTexObjectSlot].segment);
 
     gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx, "../z_bg_mori_rakkatenjo.c", 502),
               G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
